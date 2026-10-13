@@ -1,10 +1,13 @@
 # 紫笺 SQL 学习笔记本
 
-把分散的 SQL 笔记、每日学习记录和个人手记放进一个本地桌面应用。支持章节检索、直接编辑、SQL 代码复制、自动保存与历史备份。
+一款 Mariah Carey 风的本地学习笔记本：以烟紫、淡金、纸页排版和蝴蝶元素呈现 SQL 学习记录，把知识笔记、每日任务和个人手记放在一起。支持章节检索、直接编辑、SQL 代码复制、自动保存与历史备份。
 
 A local-first Windows notebook for SQL learning, with searchable chapters, daily journals, backups, and a file-based AI agent workflow.
 
-![紫笺封面](docs/cover.png)
+![紫笺 Mariah Carey 风封面展示](docs/cover.png)
+
+上图展示当前个人版封面：Mariah Carey 人物图片与 SQL 知识卡片错落排布，搭配蝴蝶和轻柔动效。这是个人致敬风格项目，并非 Mariah Carey 官方或授权产品。
+
 ![知识笔记](docs/knowledge.png)
 
 ## 下载使用
@@ -30,7 +33,7 @@ A local-first Windows notebook for SQL learning, with searchable chapters, daily
 
 主要工作包括把原有文档转为章节化内容，组织每日记录与自由手记，加入保存与备份流程，以及处理应用编辑和外部脚本同时更新时的版本冲突。
 
-公开版保留紫笺的烟紫、淡金配色和纸页式阅读体验，使用 SQL 主题封面与 7 节匿名示例笔记。仓库和下载包不包含作者的真实手记、学习记录、私人照片或本机配置。
+公开版保留紫笺的烟紫、淡金配色和纸页式阅读体验，附有 7 节匿名示例笔记。README 封面展示使用当前个人版的 Mariah Carey 人物图片；现有下载包仍使用 SQL 主题封面，此次展示更新不替换下载包。仓库和下载包不包含作者的真实手记、学习答案或本机配置。
 
 ## 开发运行
 
@@ -80,3 +83,5 @@ Electron、原生 HTML/CSS/JavaScript、本地 JSON 文件。渲染进程隔离�
 ## 许可
 
 项目代码、公开版图标与示例笔记使用 MIT License。下载包包含的 Electron、Chromium 及其他第三方组件遵循各自随附的许可证。
+
+封面展示中的 Mariah Carey 摄影素材不属于本项目的 MIT 授权范围，相关权利归各自权利人所有；项目代码许可不授予这些摄影素材的使用权。
