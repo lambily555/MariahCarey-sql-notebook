@@ -4,7 +4,7 @@ app.disableHardwareAcceleration();
 const override=process.argv.find(v=>v.startsWith('--notebook-root='));
 const root=override?path.resolve(override.slice('--notebook-root='.length)):path.resolve(__dirname,'../../..');
 const profile=path.join(root,'desktop-profile');fs.mkdirSync(profile,{recursive:true});
-app.setPath('userData',profile);app.setPath('sessionData',profile);app.setPath('logs',path.join(profile,'logs'));app.setAppUserModelId('io.github.lambily555.zijian');app.setName('紫笺 SQL 学习笔记本');
+app.setPath('userData',profile);app.setPath('sessionData',profile);app.setPath('logs',path.join(profile,'logs'));app.setAppUserModelId('local.zijian.sql.notebook');app.setName('紫笺 SQL 学习笔记本');
 protocol.registerSchemesAsPrivileged([{scheme:'zijian',privileges:{standard:true,secure:true,supportFetchAPI:true,corsEnabled:true}}]);
 let win,tray,closing=false,exitAction=null;
 function showWindow(){if(win&&!win.isDestroyed()){if(win.isMinimized())win.restore();win.show();win.focus();}}
@@ -33,10 +33,13 @@ if(!app.requestSingleInstanceLock()){app.quit();}else{
     ]));
     tray.on('click',showWindow);
     tray.on('double-click',showWindow);
-    win.webContents.on('context-menu',(_event,params)=>{
+    win.webContents.on('context-menu',async(_event,params)=>{
       const items=[];
       if(params.isEditable)items.push({role:'undo',label:'撤销',enabled:params.editFlags.canUndo},{role:'redo',label:'重做',enabled:params.editFlags.canRedo},{type:'separator'},{role:'cut',label:'剪切',enabled:params.editFlags.canCut},{role:'copy',label:'复制',enabled:params.editFlags.canCopy},{role:'paste',label:'粘贴',enabled:params.editFlags.canPaste},{type:'separator'},{role:'selectAll',label:'全选'});
       else if(params.selectionText)items.push({role:'copy',label:'复制'});
+      if(params.mediaType==='image'){
+        try{const canDelete=await win.webContents.executeJavaScript(`window.prepareJournalImageDelete?.(${Number(params.x)},${Number(params.y)}) === true`);if(canDelete){if(items.length)items.push({type:'separator'});items.push({label:'删除图片',click:()=>win.webContents.executeJavaScript('window.deleteContextJournalImage?.()').catch(()=>{})});}}catch{}
+      }
       if(items.length)Menu.buildFromTemplate(items).popup({window:win});
     });
     win.webContents.setWindowOpenHandler(()=>({action:'deny'}));

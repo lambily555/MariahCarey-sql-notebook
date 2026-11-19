@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="zh-CN">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="notebook-token" content="__TOKEN__"><title>紫笺 · SQL 学习笔记本</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script><script defer src="/knowledge.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="notebook-token" content="__TOKEN__"><title>紫笺 · SQL 学习笔记本</title><link rel="stylesheet" href="/style.css"><script defer src="/route-progress.cjs"></script><script defer src="/app.js"></script><script defer src="/knowledge.js"></script></head>
 <body>
 <section class="cover-screen journal-cover" id="coverScreen" aria-label="SQL 学习杂志封面" tabindex="-1">
-  <header class="journal-topline"><span>紫笺 / PERSONAL STUDY JOURNAL</span><time id="coverEdition"></time><button id="coverMotion" aria-pressed="false" hidden>暂停动效</button></header>
+  <header class="journal-topline"><span>紫笺 / PERSONAL STUDY JOURNAL</span><time id="coverEdition"></time><button id="coverMotion" aria-pressed="false">暂停动效</button></header>
   <div class="cover-masthead"><p>SQL LEARNING JOURNAL</p><h1><span>SQL</span><span>学习记录</span></h1><p class="cover-deck">从一条查询开始，写下我的数据分析之路。</p></div>
   <div class="journal-content">
     <div class="part-heading"><span>01</span><div><small>PART ONE</small><h2>把问题，写成查询。</h2><p>基础查询 / 点击卡片，回到完整笔记</p></div></div>
@@ -11,16 +11,22 @@
       <div class="study-column">
         <button class="study-card" data-chapter="chapter-05"><span class="card-number">01 / 基础查询</span><h3>SELECT</h3><p>先确定，你想看到哪几列。</p><pre>SELECT CustomerName, City
 FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
+        <figure class="journal-portrait portrait-medium"><img src="/assets/cutout-07.png" alt="Mariah Carey" loading="lazy"></figure>
         <button class="study-card" data-chapter="chapter-09"><span class="card-number">04 / 基础查询</span><h3>ORDER BY</h3><p>先排国家，再排同一国家的客户。</p><pre>ORDER BY Country ASC,
          CustomerName DESC;</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
+        <figure class="journal-portrait portrait-medium"><img src="/assets/cutout-03.png" alt="Mariah Carey" loading="lazy"></figure>
       </div>
       <div class="study-column">
+        <figure class="journal-portrait portrait-hero"><img src="/assets/cutout-01.png" alt="Mariah Carey" loading="lazy"></figure>
         <p class="pencil-note">先想清楚，再写下一行。</p>
         <button class="study-card" data-chapter="chapter-11"><span class="card-number">05 / 基础查询</span><h3>AND / OR</h3><p>同时满足用 AND；任一满足用 OR。</p><pre>WHERE Country = 'Germany'
    OR Country = 'France';</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
+        <figure class="journal-portrait portrait-medium"><img src="/assets/cutout-08.png" alt="Mariah Carey" loading="lazy"></figure>
       </div>
       <div class="study-column">
+        <figure class="journal-portrait portrait-small"><img src="/assets/cutout-02.png" alt="Mariah Carey" loading="lazy"></figure>
         <button class="study-card" data-chapter="chapter-07"><span class="card-number">02 / 基础查询</span><h3>WHERE</h3><p>把名单缩小到符合要求的客户。</p><pre>WHERE Country = 'Mexico';</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
+        <figure class="journal-portrait portrait-medium"><img src="/assets/cutout-04.png" alt="Mariah Carey" loading="lazy"></figure>
         <button class="study-card" data-chapter="chapter-37"><span class="card-number">03 / 基础查询</span><h3>DISTINCT</h3><p>城市清单，一行只代表一个城市。</p><pre>SELECT DISTINCT City
 FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidden="true">↗</span></span></button>
       </div>
@@ -28,16 +34,18 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
     <section class="journal-next" aria-label="后续学习方向">
       <div class="part-heading"><span>02</span><div><small>NEXT CHAPTERS</small><h2>从名单，走向分析。</h2><p>后续学习方向；笔记可预览，不代表已经掌握。</p></div></div>
       <div class="next-layout">
+        <figure class="journal-portrait chapter-portrait"><img src="/assets/cutout-10.png" alt="Mariah Carey" loading="lazy"></figure>
         <div class="next-links">
           <button data-chapter="chapter-30"><span>02</span><div><h3>聚合分析</h3><p>GROUP BY / COUNT / SUM</p><small>把客户与订单汇总成可比较的数字</small></div><b aria-hidden="true">↗</b></button>
           <button data-chapter="chapter-33"><span>03</span><div><h3>多表查询</h3><p>JOIN / LEFT JOIN</p><small>把分散在不同表里的信息联系起来</small></div><b aria-hidden="true">↗</b></button>
           <div class="future-chapter"><span>04</span><div><h3>进阶查询</h3><p>子查询 / CTE / 窗口函数</p><small>待后续学习时整理</small></div></div>
         </div>
       </div>
+      <div class="portrait-postscript" aria-hidden="true"><figure class="journal-portrait portrait-small"><img src="/assets/cutout-06.png" alt="Mariah Carey" loading="lazy"></figure><figure class="journal-portrait portrait-small"><img src="/assets/cutout-05.png" alt="Mariah Carey" loading="lazy"></figure><figure class="journal-portrait portrait-small"><img src="/assets/cutout-09.png" alt="Mariah Carey" loading="lazy"></figure></div>
     </section>
-    <footer class="cover-credit">紫笺 · 从查询到笔记</footer>
+    <footer class="cover-credit">Mariah Carey <span class="cover-butterfly" aria-hidden="true"><i class="butterfly-wing butterfly-wing-left"></i><i class="butterfly-wing butterfly-wing-right"></i></span></footer>
   </div>
-  <button class="cover-enter-hint" id="coverEnter"><span aria-hidden="true"></span>打开学习记录</button>
+  <button class="cover-enter-hint" id="coverEnter"><span aria-hidden="true"></span>按任意键打开学习记录</button>
 </section>
 <div class="app" id="notebookApp" hidden>
   <aside class="sidebar">
@@ -56,11 +64,30 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
       <label for="knowledgeSearch" class="knowledge-search-label">搜索整本知识笔记</label><input id="knowledgeSearch" type="search" placeholder="中文概念或 SQL 术语均可">
       <div class="index-heading"><span>章节目录</span><span id="chapterCount"></span></div><nav id="chapterList" aria-label="知识笔记章节"></nav><p id="noChapters" hidden>没有匹配章节，试试其他关键词。</p>
     </div>
-    <div class="sidebar-bottom"><span class="swatch"></span>烟霞紫 · 鎏金<p>淡金细线，象牙白纸页</p><button id="backup" class="text-button">备份到本机</button></div>
+    <div class="sidebar-bottom"><span class="swatch"></span>烟霞紫 · 鎏金<p>淡金细线，象牙白纸页</p><button id="backup" class="text-button">备份到 D 盘</button></div>
   </aside>
   <main>
-    <header class="toolbar"><div class="breadcrumb"><button id="showCover">封面</button> <span>/</span> <span id="viewName">每日学习记录</span></div><div class="tools"><button id="undoEdit" aria-label="撤回" title="撤回上一步编辑（Ctrl+Z）">↶</button><button id="redoEdit" aria-label="重做" title="取消撤回（Ctrl+Y 或 Ctrl+Shift+Z）">↷</button><button id="copyText" title="复制选中文字（Ctrl+C）">复制</button><button id="pasteText" title="粘贴到最后编辑的位置（Ctrl+V）">粘贴</button><div class="tool-group" id="dailyTools"><button id="penToggle" aria-pressed="true">钢笔动效：开</button><button id="refreshDaily" class="refresh-button" title="重新读取教练安排和学习记录">刷新内容</button><button id="save" class="save-button">保存手记</button></div></div></header>
+    <header class="toolbar"><div class="breadcrumb"><button id="showCover">封面</button> <span>/</span> <span id="viewName">每日学习记录</span></div><div class="tools"><button id="undoEdit" aria-label="撤回" title="撤回上一步编辑（Ctrl+Z）">↶</button><button id="redoEdit" aria-label="重做" title="取消撤回（Ctrl+Y 或 Ctrl+Shift+Z）">↷</button><button id="copyText" title="复制选中文字（Ctrl+C）">复制</button><button id="pasteText" title="粘贴到最后编辑的位置（Ctrl+V）">粘贴</button><div class="tool-group" id="dailyTools"><select id="textColor" aria-label="手记文字颜色" title="先选中文字，再选择颜色"><option value="" selected disabled>文字颜色</option><option value="default">默认颜色</option><option value="#b43d4b">红色</option><option value="#315da8">蓝色</option><option value="#36775b">绿色</option><option value="#8051a4">紫色</option><option value="#936b20">金色</option><option value="#222222">黑色</option></select><button id="penToggle" aria-pressed="true">钢笔动效：开</button><button id="refreshDaily" class="refresh-button" title="重新读取教练安排和学习记录">刷新内容</button><button id="save" class="save-button">保存手记</button></div></div></header>
     <div id="notice" role="alert" hidden></div>
+    <details class="learning-route" id="learningRoute">
+      <summary>
+        <span class="route-kicker">学习航线 · 面向数据分析面试</span>
+        <strong>W3 已学至 GROUP BY + HAVING，当前进入 EXISTS / ANY / ALL</strong>
+        <span class="route-summary-hint">展开查看 SQL → Python 路线</span>
+      </summary>
+      <div class="route-body">
+        <div class="route-copy">
+          <section><h2>W3 主线还要学什么</h2><p><b>当前：</b>EXISTS（是否存在）、ANY（至少一个满足）和 ALL（全部满足）。接下来完成 CASE、Null Functions，并补学 SQL Dates。</p></section>
+          <section><h2>达到面试水平还要补什么</h2><p>日期与字符串处理、子查询、CTE（给复杂查询起临时名字）、窗口函数（排名、累计、环比）、每组 Top N、去重、留存，以及先判断“每一行代表什么”的数据粒度意识。</p></section>
+        </div>
+        <p class="route-gate"><b>转入 Python 前的检查线：</b>W3 主线学到 Null Functions，并完成 SQL Dates；再补齐上述面试专项，连续 2 套 SQL 模拟面试达到 80 分。到线后即可开始 Python，不必把 W3 后面的数据库管理章节全部学完。</p>
+        <div class="route-progress" role="progressbar" aria-label="从 SQL 学习到开始 Python 的总体进度" aria-valuemin="0" aria-valuemax="5" aria-valuenow="2" aria-valuetext="已完成 SQL 基础、多表连接与集合查询，正在学习分组汇总，尚未达到 Python 启动条件">
+          <div class="route-endpoints"><strong>SQL</strong><span>当前 · EXISTS / ANY / ALL</span><strong>Python</strong></div>
+          <div class="route-track" aria-hidden="true"><span class="route-fill"></span><i class="route-marker"></i></div>
+          <div class="route-stages" aria-hidden="true"><span>基础查询</span><span>JOIN / UNION</span><span>分组汇总</span><span>W3 核心结束</span><span>面试专项</span></div>
+        </div>
+      </div>
+    </details>
     <div id="dailyView">
     <div class="workspace-caption"><span id="monthCaption">九月的书页</span><span id="status" role="status" aria-live="polite">正在打开笔记本…</span></div>
     <section class="book-shell" aria-label="每日学习笔记本">
@@ -78,7 +105,7 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
         </article>
         <article class="page right-page" id="rightPage">
           <div class="ribbon" aria-hidden="true"></div>
-          <div class="page-top"><label for="journalTitle">我的手记</label><span>自由书写</span></div>
+          <div class="page-top"><label for="journalTitle">我的手记</label><button id="journalFullscreen" type="button" aria-expanded="false" title="放大手记；按 Esc 返回">⛶ 全屏查看</button></div>
           <input id="journalTitle" class="journal-title" maxlength="120" placeholder="给今天起一个名字" aria-label="手记标题">
           <div class="writing-label">收获、疑问，或一段自己写的 SQL。</div>
           <div class="writing-area"><textarea id="journalBody" hidden></textarea><div id="journalComposer" class="journal-composer" contenteditable="true" spellcheck="false" data-placeholder="今天，我想记下……" aria-label="手记正文，支持在光标处插入图片"></div></div>
@@ -87,7 +114,7 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
         </article>
       </div>
     </section>
-    <div class="page-controls"><button id="previous" aria-label="切换到前一日">← <span>前一天</span></button><label class="date-picker">跳至日期 <input id="datePicker" type="date" aria-label="跳至日期"></label><button id="next" aria-label="切换到后一日"><span>后一天</span> →</button></div>
+    <div class="page-controls"><button id="previous" aria-label="切换到前一日">← <span>前一天</span></button><label class="date-picker">跳至日期 <input id="datePicker" type="date" min="2026-09-03" aria-label="跳至日期"></label><button id="next" aria-label="切换到后一日"><span>后一天</span> →</button></div>
     </div>
     <section id="knowledgeView" hidden aria-label="SQL 知识笔记">
       <div class="knowledge-bar"><span id="knowledgeStatus" role="status">正在读取知识笔记…</span><div><button id="newChapter">新增章节</button><button id="editChapter">编辑本章</button><button id="refreshKnowledge">刷新</button></div></div>
@@ -102,9 +129,9 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
         </div>
       </article></div>
       <div class="page-controls"><button id="previousChapter">← 上一章</button><span id="chapterPager"></span><button id="nextChapter">下一章 →</button></div>
-      <p class="knowledge-footnote">应用内笔记是持续更新的主版本。可直接编辑章节，也可通过本地脚本更新。</p>
+      <p class="knowledge-footnote">应用内笔记是持续更新的主版本。D 盘原 Word 仅保留作范本，不再同步。</p>
     </section>
-    <footer class="app-footer"><span>从运营出发，向数据分析前进。</span><span>本机保存 / 应用所在目录</span></footer>
+    <footer class="app-footer"><span>从运营出发，向数据分析前进。</span><span>本机保存 / D:\SQL\学习笔记本</span></footer>
   </main>
 </div>
 <div id="imagePreview" class="image-preview" hidden role="dialog" aria-modal="true" aria-label="手记图片预览">
@@ -113,4 +140,5 @@ FROM Customers;</pre><span class="card-link">阅读知识笔记 <span aria-hidde
   <div class="image-preview-actions"><span>按 Esc 或点击空白处关闭</span><button id="copyPreviewImage" type="button">复制图片</button></div>
 </div>
 <div id="pen" aria-hidden="true"><div class="pen-object"><i class="pen-barrel"></i><i class="pen-grip"></i><i class="pen-nib"></i></div></div>
+<link rel="stylesheet" href="/learning-stats.css"><script defer src="/learning-stats.js"></script>
 </body></html>

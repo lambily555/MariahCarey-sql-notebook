@@ -1,4 +1,61 @@
 'use strict';
+(() => {
+  const button = document.getElementById('journalFullscreen');
+  const page = document.getElementById('rightPage');
+  const composer = document.getElementById('journalComposer');
+  const toolbar = document.querySelector('main > .toolbar');
+  const toolbarPlaceholder = document.createComment('toolbar original position');
+  const placeholder = document.createComment('journal original position');
+  const overlay = document.createElement('section');
+  overlay.className = 'journal-fullscreen-overlay';
+  overlay.hidden = true;
+  overlay.setAttribute('aria-label', '全屏手记');
+  document.body.append(overlay);
+  let opened = false, oldOverflow = '', previousFocus, ownsFullscreen = false;
+  function close() {
+    if (!opened) return;
+    const scroll = composer.scrollTop;
+    opened = false;
+    placeholder.replaceWith(page);
+    toolbarPlaceholder.replaceWith(toolbar);
+    overlay.hidden = true;
+    document.body.style.overflow = oldOverflow;
+    button.textContent = '⛶ 全屏查看';
+    button.setAttribute('aria-expanded', 'false');
+    previousFocus?.focus({preventScroll: true});
+    composer.scrollTop = scroll;
+    if (ownsFullscreen && document.fullscreenElement) document.exitFullscreen().catch(() => {});
+    ownsFullscreen = false;
+  }
+  button.addEventListener('click', () => {
+    if (opened) { close(); return; }
+    const scroll = composer.scrollTop;
+    previousFocus = document.activeElement;
+    oldOverflow = document.body.style.overflow;
+    page.before(placeholder);
+    toolbar.before(toolbarPlaceholder);
+    overlay.append(toolbar, page);
+    overlay.hidden = false;
+    opened = true;
+    document.body.style.overflow = 'hidden';
+    button.textContent = '退出全屏 · Esc';
+    button.setAttribute('aria-expanded', 'true');
+    composer.scrollTop = scroll;
+    // Window-sized expansion remains available if native fullscreen is denied.
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().then(() => { ownsFullscreen = true; }).catch(() => {});
+    }
+  });
+  document.addEventListener('fullscreenchange', () => {
+    if (!document.fullscreenElement && opened) close();
+  });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && opened && document.getElementById('imagePreview')?.hidden !== false) {
+      event.preventDefault();
+      close();
+    }
+  });
+})();
 const $ = id => document.getElementById(id);
 const token = document.querySelector('meta[name="notebook-token"]').content;
 const today = () => new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -10,6 +67,17 @@ async function api(path,payload){
   const value=await response.json();if(!response.ok){const error=Error(value.error||'操作失败');error.status=response.status;throw error;}return value;
 }
 function allDates(){return [...new Set([...Object.keys(data.coach),...Object.keys(data.journal),current])].sort();}
+function renderLearningRoute(){
+  const progress=window.calculateLearningRoute(data.coach),route=$('learningRoute');
+  route.querySelector('summary strong').textContent=`当前学习：${progress.current}`;
+  route.querySelector('.route-copy section p').textContent=`已确认完成：${progress.completed.join('、')||'暂无'}。接下来按课程顺序继续学习，完成记录更新后进度自动变化。`;
+  const bar=route.querySelector('.route-progress');
+  bar.setAttribute('aria-valuemax','100');bar.setAttribute('aria-valuenow',String(progress.percent));
+  bar.setAttribute('aria-valuetext',`SQL到Python路线进度${progress.percent}%，当前学习${progress.current}`);
+  route.querySelector('.route-endpoints span').textContent=`${progress.percent}% · ${progress.current}`;
+  route.querySelector('.route-fill').style.width=progress.percent+'%';
+  route.querySelector('.route-marker').style.left=progress.percent+'%';
+}
 const searchAliases={
   '去重':['distinct'],'distinct':['去重'],'排序':['order by','orderby'],'order by':['排序'],'orderby':['排序'],
   '筛选':['where'],'where':['筛选'],'别名':['alias','aliases','as'],'alias':['别名'],'aliases':['别名'],
@@ -90,7 +158,7 @@ function render(){
   $('monthCaption').textContent=new Intl.DateTimeFormat('zh-CN',{year:'numeric',month:'long',timeZone:'Asia/Shanghai'}).format(d)+'的书页';
   $('datePicker').value=current;title.value=data.journal[current]?.title||'';body.value=data.journal[current]?.body||'';composer.innerHTML=safeRich(data.journal[current]?.richBody,body.value);journalImages=[];composerRange=null;
   resetEditHistory(title);resetEditHistory(body);
-  $('wordCount').textContent=`${body.value.length} 字`;renderCoach();renderIndex();$('status').textContent=data.journal[current]?'已保存到本机':'已打开 · 等你落笔';
+  $('wordCount').textContent=`${body.value.length} 字`;renderCoach();renderIndex();$('status').textContent=data.journal[current]?'已保存到 D 盘':'已打开 · 等你落笔';
 }
 async function refresh(manual=false){
   const button=$('refreshDaily');
@@ -98,6 +166,7 @@ async function refresh(manual=false){
   try{const incoming=await api('/api/notebook');
     // Never replace an active or unsaved user edit with an external update.
     data.coach=incoming.coach;
+    renderLearningRoute();
     if(!dirty&&!saving&&document.activeElement!==body&&document.activeElement!==composer&&document.activeElement!==title){const changed=JSON.stringify(data.journal[current])!==JSON.stringify(incoming.journal[current]);data.journal=incoming.journal;if(ready&&changed){title.value=data.journal[current]?.title||'';body.value=data.journal[current]?.body||'';composer.innerHTML=safeRich(data.journal[current]?.richBody,body.value);composerRange=null;$('wordCount').textContent=`${body.value.length} 字`;}}
     if(!ready){data.journal=incoming.journal;const keys=allDates();current=keys.includes(today())?today():keys[keys.length-1];ready=true;render();}else{renderCoach();renderIndex();}
     if(manual){notice('');$('status').textContent=dirty?'内容已刷新 · 当前手记仍待保存':'内容已刷新';}
@@ -110,8 +179,8 @@ async function save(){
   if(saving){const ok=await saving;if(!ok)return false;if(dirty)return save();return true;}
   if(!dirty)return true;
   syncComposer();const version=editVersion,day=current,payload={date:day,title:title.value,body:body.value,richBody:safeRich(composer.innerHTML,body.value),images:[],revision:data.journal[day]?.revision||0,base:saveBase||data.journal[day]};
-  $('status').textContent='正在保存到 本机…';
-  saving=(async()=>{try{const entry=await api('/api/journal',payload);data.journal[day]=entry;saveBase=version===editVersion?null:{...payload,revision:entry.revision};if(version===editVersion){dirty=false;if(entry.merged){const scroll=composer.scrollTop;title.value=entry.title;body.value=entry.body;composer.innerHTML=safeRich(entry.richBody,entry.body);composerRange=null;composer.scrollTop=scroll;}}$('status').textContent=dirty?'还有新文字待保存':'已保存到 本机';notice('');renderIndex();return true;}catch(error){notice(error.message);$('status').textContent='未保存 · '+error.message;return false;}})();
+  $('status').textContent='正在保存到 D 盘…';
+  saving=(async()=>{try{const entry=await api('/api/journal',payload);data.journal[day]=entry;saveBase=version===editVersion?null:{...payload,revision:entry.revision};if(version===editVersion){dirty=false;if(entry.merged){const scroll=composer.scrollTop;title.value=entry.title;body.value=entry.body;composer.innerHTML=safeRich(entry.richBody,entry.body);composerRange=null;composer.scrollTop=scroll;}}$('status').textContent=dirty?'还有新文字待保存':'已保存到 D 盘';notice('');renderIndex();return true;}catch(error){notice(error.message);$('status').textContent='未保存 · '+error.message;return false;}})();
   const ok=await saving;saving=null;if(ok&&dirty)return save();return ok;
 }
 async function saveAll(){if(!await save())return false;return window.knowledgeSave?window.knowledgeSave():true;}
@@ -119,7 +188,7 @@ async function saveAll(){if(!await save())return false;return window.knowledgeSa
 window.paperIsTurning=()=>false;
 window.paperTurn=async(_source,commit)=>commit();
 async function go(day){
-  if(!ready||!day||day===current)return;if(!await save())return;
+  if(!ready||!day||day<'2026-09-03'||day===current)return;if(!await save())return;
   const forward=day>current;$('pen').classList.remove('visible');
   await window.paperTurn(document.querySelector(forward?'.right-page':'.left-page'),()=>{current=day;render();},forward?1:-1,()=>document.querySelector(forward?'.left-page':'.right-page'));
 }
@@ -127,21 +196,41 @@ function edited(){dirty=true;editVersion++;$('wordCount').textContent=`${body.va
 function plainToRich(text){const div=document.createElement('div');div.textContent=text||'';return div.innerHTML.replace(/\n/g,'<br>');}
 function safeRich(html,fallback=''){
   const template=document.createElement('template');template.innerHTML=html||plainToRich(fallback);
+  template.content.querySelectorAll('[data-learning-timer]').forEach(el=>el.remove());
   for(const element of [...template.content.querySelectorAll('*')]){
     if(element.tagName==='IMG'){
       if(!/^data:image\/(?:png|jpeg|webp);base64,/i.test(element.getAttribute('src')||'')){element.remove();continue;}
       for(const attribute of [...element.attributes])if(!['src','alt','class','contenteditable'].includes(attribute.name))element.removeAttribute(attribute.name);
       element.alt='手记图片';element.className='inline-journal-image';element.setAttribute('contenteditable','false');continue;
     }
-    if(!['BR','DIV','P'].includes(element.tagName)){element.replaceWith(...element.childNodes);continue;}
+    if(!['BR','DIV','P','SPAN','FONT','TABLE','THEAD','TBODY','TFOOT','TR','TH','TD','PRE','CODE'].includes(element.tagName)){element.replaceWith(...element.childNodes);continue;}
+    const color=element.style.color||(element.tagName==='FONT'?element.getAttribute('color'):'');
     for(const attribute of [...element.attributes])element.removeAttribute(attribute.name);
+    if(color&&/^(#[0-9a-f]{3,8}|rgba?\([\d\s.,%]+\))$/i.test(color))element.style.color=color;
   }
   return template.innerHTML;
 }
 function syncComposer(){body.value=composer.innerText.replace(/\n{3,}/g,'\n\n').trimEnd();}
 function rememberComposerRange(){const selection=getSelection();if(selection?.rangeCount&&composer.contains(selection.anchorNode))composerRange=selection.getRangeAt(0).cloneRange();}
+$('textColor').addEventListener('pointerdown',rememberComposerRange);
+$('textColor').onchange=()=>{
+  const picker=$('textColor'),range=composerRange;
+  if(!range||range.collapsed||!composer.contains(range.commonAncestorContainer)){notice('请先选中手记中要改颜色的文字。');picker.value='';return;}
+  const color=picker.value==='default'?getComputedStyle(composer).color:picker.value;
+  composer.focus({preventScroll:true});const selection=getSelection();selection.removeAllRanges();selection.addRange(range);
+  if(document.execCommand('foreColor',false,color)){rememberComposerRange();syncComposer();edited();notice('文字颜色已修改，可撤销。');}else notice('未能修改颜色，请重新选择文字。');
+  picker.value='';
+};
 function insertAtComposerCursor(node){composer.focus();const selection=getSelection(),range=composerRange&&composer.contains(composerRange.commonAncestorContainer)?composerRange:document.createRange();if(!composerRange||!composer.contains(composerRange.commonAncestorContainer)){range.selectNodeContents(composer);range.collapse(false);}selection.removeAllRanges();selection.addRange(range);const inserted=node.nodeType===Node.TEXT_NODE?document.execCommand('insertText',false,node.data):document.execCommand('insertHTML',false,node.outerHTML+'\u200b');if(!inserted){notice('未能插入内容，请保留剪贴板再试。');return;}rememberComposerRange();syncComposer();edited();}
 function insertImageAtCursor(src){const img=document.createElement('img');img.src=src;img.alt='手记图片';img.className='inline-journal-image';img.setAttribute('contenteditable','false');insertAtComposerCursor(img);}
+let contextJournalImage=null;
+window.prepareJournalImageDelete=(x,y)=>{const target=document.elementFromPoint(x,y);contextJournalImage=target?.tagName==='IMG'&&composer.contains(target)?target:null;return !!contextJournalImage;};
+window.deleteContextJournalImage=()=>{
+  const img=contextJournalImage;contextJournalImage=null;if(!img||!composer.contains(img))return false;
+  const scroll=composer.scrollTop;composer.focus({preventScroll:true});const range=document.createRange();range.selectNode(img);const selection=getSelection();selection.removeAllRanges();selection.addRange(range);
+  if(!document.execCommand('delete')){notice('图片未能删除，请重试。');return false;}
+  rememberComposerRange();syncComposer();edited();composer.scrollTop=scroll;notice('图片已删除，可撤销恢复。');return true;
+};
 function cleanCopiedText(text){return text.replace(/\u200b/g,'');}
 function insertTextAtComposerCursor(text){insertAtComposerCursor(document.createTextNode(cleanCopiedText(text)));}
 document.addEventListener('copy',event=>{
@@ -169,7 +258,21 @@ $('closeImagePreview').onclick=closeImagePreview;
 $('imagePreview').onclick=event=>{if(event.target===$('imagePreview'))closeImagePreview();};
 $('copyPreviewImage').onclick=async()=>{if(!previewImageSource)return;try{await window.notebookClipboard.writeImage(previewImageSource);notice('图片已复制到剪贴板。');}catch(error){notice('复制图片失败：'+error.message);}};
 function showPen(){
-  if(!penEnabled||matchMedia('(prefers-reduced-motion: reduce)').matches||document.activeElement!==body)return;
+  if(!penEnabled||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  if(document.activeElement===composer){
+    const selection=window.getSelection();
+    if(!selection?.rangeCount||!composer.contains(selection.focusNode))return;
+    const range=document.createRange();range.setStart(selection.focusNode,selection.focusOffset);range.collapse(true);
+    let cursor=range.getClientRects()[0];
+    if((!cursor||!cursor.height)&&selection.focusNode.nodeType===Node.TEXT_NODE&&selection.focusOffset>0){range.setStart(selection.focusNode,selection.focusOffset-1);const previous=range.getClientRects()[0];if(previous)cursor={left:previous.right,top:previous.top,bottom:previous.bottom,height:previous.height};}
+    const rect=composer.getBoundingClientRect(),style=getComputedStyle(composer);
+    if(!cursor||!cursor.height){const block=selection.focusNode.nodeType===Node.ELEMENT_NODE?selection.focusNode:selection.focusNode.parentElement;const r=block.getBoundingClientRect();cursor={left:r.left+parseFloat(style.paddingLeft||0),bottom:r.top+(parseFloat(style.lineHeight)||25)};}
+    const x=cursor.left+3,y=cursor.bottom;
+    if(x<rect.left||x>rect.right||y<rect.top||y>rect.bottom||y>innerHeight)return;
+    $('pen').style.transform=`translate(${Math.min(x,innerWidth-70)}px,${y}px)`;$('pen').classList.add('visible');clearTimeout(penTimer);penTimer=setTimeout(()=>$('pen').classList.remove('visible'),900);
+    return;
+  }
+  if(document.activeElement!==body)return;
   const style=getComputedStyle(body),mirror=document.createElement('div');
   for(const key of ['fontFamily','fontSize','fontWeight','lineHeight','letterSpacing','padding','border','boxSizing','wordSpacing','tabSize'])mirror.style[key]=style[key];
   Object.assign(mirror.style,{position:'fixed',visibility:'hidden',width:body.clientWidth+'px',whiteSpace:'pre-wrap',overflowWrap:'break-word',top:'0',left:'0'});
@@ -179,6 +282,7 @@ function showPen(){
   $('pen').style.transform=`translate(${Math.min(x+3,innerWidth-70)}px,${y}px)`;$('pen').classList.add('visible');clearTimeout(penTimer);penTimer=setTimeout(()=>$('pen').classList.remove('visible'),900);
 }
 title.addEventListener('input',edited);body.addEventListener('input',()=>{edited();showPen();});body.addEventListener('compositionupdate',()=>requestAnimationFrame(showPen));body.addEventListener('compositionend',showPen);body.addEventListener('blur',()=>$('pen').classList.remove('visible'));
+composer.addEventListener('input',()=>requestAnimationFrame(showPen));composer.addEventListener('compositionupdate',()=>requestAnimationFrame(showPen));composer.addEventListener('compositionend',()=>requestAnimationFrame(showPen));composer.addEventListener('blur',()=>$('pen').classList.remove('visible'));composer.addEventListener('scroll',()=>$('pen').classList.remove('visible'));
 let lastEditable=body;
 const editHistory=new WeakMap();
 const historyFields='#journalTitle,#journalBody,#chapterTitleInput,#chapterBodyInput';
@@ -222,7 +326,15 @@ $('copyText').onclick=()=>copyText();$('pasteText').onclick=pasteText;
 for(const id of ['undoEdit','redoEdit'])$(id).addEventListener('mousedown',event=>event.preventDefault());
 $('undoEdit').onclick=()=>restoreEdit('undo');$('redoEdit').onclick=()=>restoreEdit('redo');
 window.copyNotebookText=copyText;
-$('save').onclick=save;$('refreshDaily').onclick=()=>refresh(true);$('search').oninput=renderIndex;$('today').onclick=()=>go(today());$('datePicker').onchange=e=>{if(e.target.value)go(e.target.value);};
+async function saveManually(){
+  if(await save())return true;
+  const incoming=await api('/api/notebook').catch(()=>null);
+  if(!incoming||incoming.journal[current]?.revision===(data.journal[current]?.revision||0))return false;
+  if(!confirm('此页已有其他更新。是否将当前页面另存为 D 盘草稿备份？已保存的批改内容不会被覆盖，当前页面也不会清空。'))return false;
+  syncComposer();
+  try{const result=await api('/api/journal-draft',{date:current,title:title.value,body:body.value,richBody:safeRich(composer.innerHTML,body.value),revision:data.journal[current]?.revision||0});notice('当前页面已另存：'+result.path+'。请保留此备份，再重新打开核对并合并。');$('status').textContent='草稿已备份到 D 盘 · 待合并';return false;}catch(error){notice(error.message);return false;}
+}
+$('save').onclick=saveManually;$('refreshDaily').onclick=()=>refresh(true);$('search').oninput=renderIndex;$('today').onclick=()=>go(today());$('datePicker').onchange=e=>{if(e.target.value)go(e.target.value);};
 $('previous').onclick=()=>go(dates[dates.indexOf(current)-1]);$('next').onclick=()=>go(dates[dates.indexOf(current)+1]);
 $('penToggle').onclick=()=>{penEnabled=!penEnabled;$('penToggle').textContent=`钢笔动效：${penEnabled?'开':'关'}`;$('penToggle').setAttribute('aria-pressed',String(penEnabled));if(!penEnabled)$('pen').classList.remove('visible');};
 $('backup').onclick=async()=>{if(!await saveAll())return;try{const result=await api('/api/export',{});notice('已备份到：'+result.path);}catch(error){notice(error.message);}};

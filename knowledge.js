@@ -26,9 +26,9 @@
   }
   function index(){
     const listScroll=el('chapterList').scrollTop;
-    const q=el('knowledgeSearch').value.trim().toLowerCase();el('chapterList').replaceChildren();el('chapterSelect').replaceChildren();let count=0;
+    const q=el('knowledgeSearch').value.trim();el('chapterList').replaceChildren();el('chapterSelect').replaceChildren();let count=0;
     for(const chapter of notes?.chapters||[]){const option=document.createElement('option');option.value=chapter.id;option.textContent=chapter.title;option.selected=chapter.id===selected;el('chapterSelect').append(option);
-      if(q&&!(chapter.title+'\n'+chapter.content).toLowerCase().includes(q))continue;
+      if(q&&!window.notebookSearch.matches(chapter.title+'\n'+chapter.content,q))continue;
       const button=document.createElement('button');button.className='chapter-link';button.textContent=chapter.title;button.setAttribute('aria-current',chapter.id===selected?'page':'false');button.onclick=()=>select(chapter.id);el('chapterList').append(button);count++;
     }
     el('chapterCount').textContent=`${count} / ${notes?.chapters.length||0}`;el('noChapters').hidden=count!==0;
@@ -42,7 +42,7 @@
   async function load(manual=false){
     try{const incoming=await api('/api/knowledge');const different=notes&&notes.revision!==incoming.revision;notes=incoming;
       if(!selected||(!editing&&!currentChapter())){let saved;try{saved=localStorage.getItem('knowledgeChapter');}catch{}selected=notes.chapters.some(c=>c.id===saved)?saved:notes.chapters.find(c=>/^1\./.test(c.title))?.id||notes.chapters[0]?.id;}
-      if(!editing){render();status(`共 ${notes.chapters.length} 节 · 内容保存在本机`);}else if(different){status('笔记已有更新；当前编辑已保留，保存时将核对版本。');}else if(manual){status('已读取最新内容，当前编辑未被覆盖。');}
+      if(!editing){render();status(`共 ${notes.chapters.length} 节 · 内容保存在 D 盘`);}else if(different){status('笔记已有更新；当前编辑已保留，保存时将核对版本。');}else if(manual){status('已读取最新内容，当前编辑未被覆盖。');}
     }catch(error){status('笔记未能读取');if(manual||active())notice(error.message);}
   }
   function editor(on){editing=on;el('knowledgeEditor').hidden=!on;el('knowledgeReading').hidden=on;el('editChapter').disabled=on;el('newChapter').disabled=on;}
@@ -50,12 +50,12 @@
     if(pending)return pending;if(!changed)return true;
     if(!inputTitle.value.trim()){notice('请填写章节标题。');inputTitle.focus();return false;}
     const payload={id:selected,title:inputTitle.value,content:inputBody.value,revision:draftRevision};inputTitle.readOnly=inputBody.readOnly=true;status('正在保存本章…');
-    pending=(async()=>{try{notes=await api('/api/knowledge',payload);changed=false;editor(false);render();notice('');status('本章已保存到本机，历史版本已备份。');return true;}catch(error){notice(error.message);status('尚未保存，请保留当前编辑');return false;}finally{inputTitle.readOnly=inputBody.readOnly=false;}})();const ok=await pending;pending=null;return ok;
+    pending=(async()=>{try{notes=await api('/api/knowledge',payload);changed=false;editor(false);render();notice('');status('本章已保存到 D 盘，历史版本已备份。');return true;}catch(error){notice(error.message);status('尚未保存，请保留当前编辑');return false;}finally{inputTitle.readOnly=inputBody.readOnly=false;}})();const ok=await pending;pending=null;return ok;
   }
   async function select(id){if(!await saveChapter())return;editor(false);if(id===selected)return;selected=id;render();document.querySelector('.knowledge-paper').scrollTop=0;const list=el('chapterList'),item=list.querySelector('[aria-current="page"]');if(item&&list.clientHeight){const a=item.getBoundingClientRect(),b=list.getBoundingClientRect();if(a.top<b.top)list.scrollTop-=b.top-a.top;else if(a.bottom>b.bottom)list.scrollTop+=a.bottom-b.bottom;}if(innerWidth<=800)el('knowledgeView').scrollIntoView({block:'start'});}
   async function switchView(knowledge){if(!await saveAll())return;el('notebookApp').classList.toggle('knowledge-mode',knowledge);el('knowledgeView').hidden=!knowledge;el('knowledgeNav').hidden=!knowledge;for(const id of ['dailyView','dailyNav','dailyTools'])el(id).hidden=knowledge;el('dailyTab').setAttribute('aria-pressed',String(!knowledge));el('knowledgeTab').setAttribute('aria-pressed',String(knowledge));el('viewName').textContent=knowledge?'知识笔记':'每日学习记录';el('pen').classList.remove('visible');if(knowledge){window.scrollTo(0,0);await load();}}
   el('knowledgeTab').onclick=()=>switchView(true);el('dailyTab').onclick=()=>switchView(false);
-  el('knowledgeSearch').oninput=()=>{index();if(!editing&&currentChapter())renderMarkdown(currentChapter().content,el('chapterContent'));};
+  el('knowledgeSearch').oninput=()=>{index();if(editing)return;const q=el('knowledgeSearch').value.trim(),chapter=currentChapter();if(q&&chapter&&!window.notebookSearch.matches(chapter.title+'\n'+chapter.content,q)){const match=notes.chapters.find(c=>window.notebookSearch.matches(c.title+'\n'+c.content,q));if(match){select(match.id);return;}}if(chapter)renderMarkdown(chapter.content,el('chapterContent'));};
   el('chapterSelect').onchange=e=>select(e.target.value);el('refreshKnowledge').onclick=()=>load(true);
   el('editChapter').onclick=()=>{const chapter=currentChapter();if(!chapter)return;inputTitle.value=chapter.title;inputBody.value=chapter.content;draftRevision=chapter.revision;changed=false;editor(true);status('编辑模式 · 保存后更新应用主笔记');inputBody.focus();};
   el('newChapter').onclick=()=>{selected='custom-'+Date.now();inputTitle.value='';inputBody.value='';draftRevision=0;changed=false;editor(true);status('新增章节 · 填写标题与正文后保存');inputTitle.focus();};

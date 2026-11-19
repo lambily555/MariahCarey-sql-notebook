@@ -12,7 +12,7 @@ A local-first Windows notebook for SQL learning, with searchable chapters, daily
 
 ## 下载使用
 
-在 [Releases](https://github.com/lambily555/zijian-sql-notebook/releases) 下载 Windows x64 ZIP，完整解压到可写目录，双击 `打开紫笺.cmd`，或运行 `desktop/zijian.exe`。无需安装 Node.js，无需账号。
+在 [Releases](https://github.com/lambily555/MariahCarey-sql-notebook/releases) 下载 Windows x64 ZIP，完整解压到可写目录，双击 `打开紫笺.cmd`，或运行 `desktop/zijian.exe`。无需安装 Node.js，无需账号。
 
 程序、数据与备份保存在解压目录中，请不要只移动 EXE。更新版本时先在应用内备份，解压新版本到另一个目录，再迁移自己的 `data/`；不要用示例数据覆盖旧笔记。
 
@@ -33,7 +33,7 @@ A local-first Windows notebook for SQL learning, with searchable chapters, daily
 
 主要工作包括把原有文档转为章节化内容，组织每日记录与自由手记，加入保存与备份流程，以及处理应用编辑和外部脚本同时更新时的版本冲突。
 
-公开版保留紫笺的烟紫、淡金配色和纸页式阅读体验，附有 7 节匿名示例笔记。README 封面展示使用当前个人版的 Mariah Carey 人物图片；现有下载包仍使用 SQL 主题封面，此次展示更新不替换下载包。仓库和下载包不包含作者的真实手记、学习答案或本机配置。
+公开版保留紫笺的烟紫、淡金配色和纸页式阅读体验，附有 7 节匿名示例笔记。README 封面展示使用当前个人版的 Mariah Carey 人物图片；v1.1.0同步当前个人版界面与程序功能，但仅附匿名初始示例，不包含个人学习数据。仓库和下载包不包含作者的真实手记、学习答案或本机配置。
 
 ## 开发运行
 
@@ -85,3 +85,6 @@ Electron、原生 HTML/CSS/JavaScript、本地 JSON 文件。渲染进程隔离�
 项目代码、公开版图标与示例笔记使用 MIT License。下载包包含的 Electron、Chromium 及其他第三方组件遵循各自随附的许可证。
 
 封面展示中的 Mariah Carey 摄影素材不属于本项目的 MIT 授权范围，相关权利归各自权利人所有；项目代码许可不授予这些摄影素材的使用权。
+
+## 2026-11-19 更新
+同步当前使用版本的阅读排版、手记全屏、学习路线与学习统计。公开版继续使用匿名种子笔记、空白个人记录；摄影和图像素材权利归原权利人，MIT仅适用于项目代码。最新便携版请在Releases完整解压使用。
