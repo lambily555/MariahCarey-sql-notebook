@@ -8,7 +8,7 @@ fs.mkdirSync(output,{recursive:true});
 fs.cpSync(runtime,path.join(output,'desktop'),{recursive:true,filter:source=>!source.startsWith(path.join(runtime,'resources','app'))});
 const exe=path.join(output,'desktop',fs.existsSync(path.join(runtime,'electron.exe'))?'electron.exe':'紫笺.exe');
 fs.renameSync(exe,path.join(output,'desktop','zijian.exe'));
-for(const name of ['index.html','style.css','app.js','knowledge.js','app-icon.ico','knowledge_update.cjs','route-progress.cjs','learning-stats.css','learning-stats.js','cover.jpg','README.md','LICENSE'])fs.copyFileSync(path.join(root,name),path.join(output,name));
+for(const name of ['index.html','style.css','app.js','knowledge.js','app-icon.ico','knowledge_update.cjs','route-progress.cjs','learning-stats.css','learning-stats.js','cover.jpg','README.md','LICENSE','create-desktop-shortcut.cmd'])fs.copyFileSync(path.join(root,name),path.join(output,name));
 fs.cpSync(path.join(root,'desktop/resources/app'),path.join(output,'desktop/resources/app'),{recursive:true});
 fs.cpSync(path.join(root,'assets'),path.join(output,'assets'),{recursive:true});
 fs.cpSync(path.join(root,'docs'),path.join(output,'docs'),{recursive:true});
